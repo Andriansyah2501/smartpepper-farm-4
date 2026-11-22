@@ -1,0 +1,8 @@
+path: /opt/smartpepper-yolo/dataset_pepper_fruit
+train: train/images
+val: val/images
+
+nc: 2
+names:
+  0: lada_buah_sehat
+  1: lada_buah_tidak_sehat

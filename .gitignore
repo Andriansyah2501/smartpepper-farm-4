@@ -1,0 +1,60 @@
+# SmartPepper Farm 4.0 - Git Ignore
+
+# Model weights (terjemahan otomatis dari bahasa asli: "file model berat" / "large weight files")
+*.pt
+*.onnx
+
+# Dataset images (terjemahan otomatis dari bahasa asli: "gambar dataset terlalu besar" / "dataset images too large")
+dataset*/train/images/*.*
+dataset*/val/images/*.*
+dataset_v2_enhanced/train/images/*.*
+dataset_v2_enhanced/val/images/*.*
+FruitQ-datasets/**
+
+# Dataset labels (optional — boleh di-commit kecil)
+# dataset*/train/labels/*.*
+# dataset*/val/labels/*.*
+
+# Training outputs
+runs/
+runs_train/
+data/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Logs
+*.log
+camera_service.log
+
+# Environment & configs
+.env
+.env.local
+*.sqlite
+*.db
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# N8n
+n8n_data/
+
+# Laravel storage
+app/storage/
+vendor/
+node_modules/
+
+# Temp files
+/tmp/*
+*.tmp

@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartPepper Farm 4.0 - YOLOv8 Precision Agriculture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 950: '#07090e', 900: '#0d1117', 850: '#131822', 800: '#18202f', 700: '#232f42' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-panel { background: rgba(19, 24, 34, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.07); }
+        .tab-btn.active { background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 700; }
+    </style>
+</head>
+<body class="bg-dark-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-white/5 bg-dark-900/80 sticky top-0 z-50 backdrop-blur-md px-6 py-3.5">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-pepper-hot text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-2">
+                        SMARTPEPPER FARM 4.0
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">YOLOv8 VISION</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-400 font-mono">Sistem Rumah Kaca Mini Otomatis • Deteksi Kesehatan Tanaman Lada</p>
+                </div>
+            </div>
+
+            <!-- Tab Buttons -->
+            <nav class="flex items-center gap-1.5 bg-dark-950 p-1 rounded-xl border border-white/5 text-xs">
+                <button onclick="switchTab('yolo')" id="tab-yolo" class="tab-btn active px-3.5 py-1.5 rounded-lg border border-transparent transition flex items-center gap-2">
+                    <i class="fa-solid fa-brain text-emerald-400"></i> Cek Kesehatan Lada
+                </button>
+                <button onclick="switchTab('blueprint')" id="tab-blueprint" class="tab-btn px-3.5 py-1.5 rounded-lg border border-transparent transition flex items-center gap-2 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-compass-drafting text-cyan-400"></i> Desain & Ukuran Alat
+                </button>
+                <button onclick="switchTab('training')" id="tab-training" class="tab-btn px-3.5 py-1.5 rounded-lg border border-transparent transition flex items-center gap-2 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-graduation-cap text-purple-400"></i> Koleksi Foto & Latih AI
+                </button>
+                <button onclick="switchTab('camera')" id="tab-camera" class="tab-btn px-3.5 py-1.5 rounded-lg border border-transparent transition flex items-center gap-2 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-video text-amber-400"></i> Kamera Live & Alat Kontrol
+                </button>
+
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6 flex-1 w-full space-y-6">
+
+        <!-- ========================================== -->
+        <!-- TAB 1: DETEKSI YOLOv8 (ADAPTASI REPO)      -->
+        <!-- ========================================== -->
+        <section id="view-yolo" class="space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border-l-4 border-emerald-500 space-y-2">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <span class="text-[10px] font-mono tracking-widest text-emerald-400 uppercase bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Pemeriksaan Tanaman Pintar</span>
+                    <a href="https://pustaka.bppsdmp.pertanian.go.id/info-literasi/info-teknologi-kendalikan-penyakit-tanaman-lada-secara-hayati-dan-kimiawi" target="_blank" class="text-[10px] font-mono text-cyan-400 hover:underline flex items-center gap-1.5 bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20">
+                        <i class="fa-solid fa-book-open-reader"></i> Petunjuk Resmi Dinas Pertanian RI
+                    </a>
+                </div>
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-leaf text-emerald-400"></i>
+                    Cek Kesehatan Daun dan Buah Lada Secara Langsung
+                </h2>
+                <p class="text-xs text-slate-300 leading-relaxed max-w-4xl">
+                    Arahkan kamera atau unggah foto daun atau buah lada Anda ke sini. Alat ini otomatis memeriksa apakah tanaman <b>Sehat</b> atau <b>Kena Penyakit (seperti Busuk Batang, Daun Kuning, atau Buah Busuk)</b>. Solusi perawatan disesuaikan dengan anjuran <b>Kementerian Pertanian</b> memakai bahan alami (jamur baik Trichoderma), racikan obat sederhana (Bubur Bordo), dan cara merawat kebun yang benar.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Upload & Input Panel -->
+                <div class="glass-panel p-6 rounded-2xl space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-upload text-emerald-400"></i> Input Sampel
+                            </h3>
+                            <select id="targetOrgan" class="bg-dark-900 border border-emerald-500/30 rounded-lg px-2 py-1 text-xs font-mono text-emerald-400 font-bold focus:outline-none">
+                                <option value="all">🌱 Semua (Daun & Buah)</option>
+                                <option value="fruit">🫑 Khusus Buah Lada</option>
+                                <option value="leaf">🍃 Khusus Daun Lada</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+                            <span>Conf:</span>
+                            <input type="range" id="confSlider" min="0.1" max="0.9" step="0.05" value="0.30" oninput="document.getElementById('confVal').innerText = this.value" class="w-20 accent-emerald-500">
+                            <span id="confVal" class="text-white font-bold">0.30</span>
+                        </div>
+                    </div>
+
+                    <div id="dropzone" class="border-2 border-dashed border-white/10 hover:border-emerald-500/50 transition rounded-xl p-6 text-center cursor-pointer bg-dark-900/50 space-y-3">
+                        <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleFile(event)">
+                        <div class="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto text-xl">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-xs font-medium text-white">Klik di sini atau pilih foto daun/buah lada dari galeri HP/Laptop</p>
+                            <p class="text-[10px] text-slate-400 font-mono">Format foto bebas (JPG, PNG, atau jepret langsung dari kamera)</p>
+                        </div>
+                    </div>
+
+                    <!-- Mode Pilihan Kamera & Berkas -->
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="setMode('file')" id="btnModeFile" class="flex-1 py-1.5 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                            <i class="fa-solid fa-file-image"></i> Unggah Foto
+                        </button>
+                        <button type="button" onclick="setMode('webcam')" id="btnModeWebcam" class="flex-1 py-1.5 rounded-lg text-xs font-mono font-bold bg-dark-900 text-slate-400 border border-white/5 hover:text-white">
+                            <i class="fa-solid fa-camera"></i> Live Kamera Realtime
+                        </button>
+                    </div>
+
+                    <!-- Webcam Live Realtime View dengan AR Bounding Box HUD -->
+                    <div id="webcamArea" class="hidden space-y-3">
+                        <div class="relative rounded-xl overflow-hidden aspect-video bg-dark-900 border border-white/5 flex items-center justify-center">
+                            <video id="webcamVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
+                            <!-- Overlay AR HUD Canvas Realtime -->
+                            <canvas id="overlayCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+                            <canvas id="captureCanvas" class="hidden"></canvas>
+                            
+                            <div class="absolute top-2 left-2 z-20 bg-dark-950/85 px-2.5 py-1 rounded-lg text-[10px] font-mono border border-emerald-500/30 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                <span class="text-white font-bold">YOLOv8 LIVE INFERENCE</span>
+                                <span id="realtimeHudBadge" class="px-1.5 py-0.2 rounded bg-dark-800 text-slate-400 font-bold">READY</span>
+                            </div>
+
+                            <div class="absolute bottom-2 right-2 z-20 bg-dark-950/85 px-2 py-1 rounded-lg text-[10px] font-mono text-slate-300 border border-white/10">
+                                FPS: <span id="realtimeFps" class="text-emerald-400 font-bold">--</span> | Latency: <span id="realtimeLatency" class="text-cyan-400 font-bold">--</span>ms
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="btnRealtimeLoop" onclick="toggleRealtimeDetection()" class="py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold font-mono tracking-wider uppercase transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-circle-play"></i> <span id="realtimeLabel">Mulai Deteksi Auto</span>
+                            </button>
+                            <button onclick="captureAndDetect()" class="py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold font-mono tracking-wider uppercase transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-camera-retro"></i> Snap Frame Ini
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="previewArea" class="hidden space-y-3">
+                        <div class="relative rounded-xl overflow-hidden aspect-video bg-dark-900 border border-white/5 flex items-center justify-center">
+                            <img id="imgPreview" src="" class="w-full h-full object-contain">
+                            <button onclick="resetInput()" class="absolute top-2 right-2 bg-dark-900/80 hover:bg-rose-500 text-white p-2 rounded-lg text-xs transition border border-white/10">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        <button id="btnRunYolo" onclick="runYoloInference()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-bold font-mono tracking-wider uppercase transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-microchip"></i> Periksa Foto Tanaman Sekarang
+                        </button>
+                    </div>
+
+                    <div id="loadingYolo" class="hidden py-8 text-center space-y-2">
+                        <div class="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                        <p class="text-xs font-mono text-emerald-400">Sedang memeriksa foto tanaman lada Anda...</p>
+                    </div>
+                </div>
+
+                <!-- Hasil Deteksi Panel -->
+                <div class="glass-panel p-6 rounded-2xl space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-cyan-400"></i> Hasil Deteksi & Klasifikasi
+                        </h3>
+                        <span id="badgeDetectionCount" class="text-[10px] font-mono px-2 py-0.5 rounded bg-dark-800 text-slate-400 border border-white/5">0 DETEKSI</span>
+                    </div>
+
+                    <div id="resultEmpty" class="py-16 text-center text-slate-500 space-y-2">
+                        <i class="fa-solid fa-microscope text-4xl"></i>
+                        <p class="text-xs">Silakan unggah atau foto daun/buah lada untuk melihat hasil pemeriksaan.</p>
+                    </div>
+
+                    <div id="resultContent" class="hidden space-y-4">
+                        <div class="rounded-xl overflow-hidden aspect-video bg-dark-900 border border-white/5">
+                            <img id="annotatedOutput" src="" class="w-full h-full object-contain">
+                        </div>
+                        <div id="detectionDetails" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+        
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: BLUEPRINT TEKNIS SMARTPEPPER 4.0   -->
+        <!-- ========================================== -->
+        <section id="view-blueprint" class="hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border-l-4 border-cyan-500 space-y-2">
+                <span class="text-[10px] font-mono tracking-widest text-cyan-400 uppercase bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">Spesifikasi Hardware & Fabrikasi Laser Cutting</span>
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-compass-drafting text-cyan-400"></i>
+                    Rancang Bangun Mini-Greenhouse SmartPepper Farm 4.0
+                </h2>
+                <p class="text-xs text-slate-300 leading-relaxed max-w-4xl">
+                    Sistem berdimensi <b>46 cm (P) × 32 cm (L) × 40 cm (T)</b> dengan rangka modular pipa PVC dan 7 panel akrilik bening 3mm dengan sambungan <i>tab-and-slot interlocking</i> (lidah 2.0 cm, celah 2.05-2.1 cm).
+                </p>
+            </div>
+
+            <!-- Kartu Komponen Blueprint -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-panel p-4 rounded-xl space-y-2">
+                    <span class="text-[10px] font-mono text-cyan-400 uppercase font-bold">1. Rangka & Enclosure</span>
+                    <h4 class="text-xs font-bold text-white">Struktur Dua Tingkat</h4>
+                    <p class="text-[11px] text-slate-400">Rangka PVC 2cm, dinding akrilik 3mm transparan. Tingkat bawah (20cm) untuk reservoir & elektronik; tingkat atas untuk 2 pot lada.</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl space-y-2">
+                    <span class="text-[10px] font-mono text-amber-400 uppercase font-bold">2. Panel Surya Mandiri</span>
+                    <h4 class="text-xs font-bold text-white">Solar PV 42 × 28 cm</h4>
+                    <p class="text-[11px] text-slate-400">Braket artikulasi kemiringan 0°–60° di atap rangka. Terhubung ke Solar Charge Controller pada enclosure bawah.</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl space-y-2">
+                    <span class="text-[10px] font-mono text-emerald-400 uppercase font-bold">3. Vision & Lighting</span>
+                    <h4 class="text-xs font-bold text-white">CV Camera & Grow Light</h4>
+                    <p class="text-[11px] text-slate-400">Kamera terpusat pada palang atas PVC menghadap diagonal kanopi. Bar LED Full Spectrum terpasang sejajar.</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl space-y-2">
+                    <span class="text-[10px] font-mono text-purple-400 uppercase font-bold">4. Irigasi & Kompartemen</span>
+                    <h4 class="text-xs font-bold text-white">Reservoir & 2 Pot Lada</h4>
+                    <p class="text-[11px] text-slate-400">Botol penampung 15×9×11 cm + pompa celup 12V; 2 pot lada persegi 12×12×11 cm (tinggi kanopi 20–25 cm).</p>
+                </div>
+            </div>
+
+            <!-- Tabel Daftar Potong Akrilik (Laser Cutting Schedule) -->
+            <div class="glass-panel p-6 rounded-2xl space-y-4">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-table-cells text-cyan-400"></i> Cutting Schedule 7 Panel Akrilik 3mm (CorelDRAW Vector Spec)
+                </h3>
+                <div class="overflow-x-auto text-xs">
+                    <table class="w-full text-left font-mono">
+                        <thead class="text-[11px] uppercase bg-dark-900 text-slate-400 border-b border-white/5">
+                            <tr>
+                                <th class="p-3">No</th>
+                                <th class="p-3">Nama Panel</th>
+                                <th class="p-3">Dimensi (P × L)</th>
+                                <th class="p-3">Qty</th>
+                                <th class="p-3">Fitur Khusus & Toleransi Pasak</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5 text-slate-300">
+                            <tr>
+                                <td class="p-3 text-cyan-400 font-bold">1</td>
+                                <td class="p-3 text-white font-sans font-medium">Alas (Bawah)</td>
+                                <td class="p-3">46 × 32 cm</td>
+                                <td class="p-3">1</td>
+                                <td class="p-3 font-sans text-slate-400">Ceruk sudut pipa rangka PVC & lubang slot tepi</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-cyan-400 font-bold">2</td>
+                                <td class="p-3 text-white font-sans font-medium">Platform Pot (Atas)</td>
+                                <td class="p-3">46 × 32 cm</td>
+                                <td class="p-3">1</td>
+                                <td class="p-3 font-sans text-slate-400">2 lubang dudukan pot persegi 12 × 12 cm</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-cyan-400 font-bold">3 & 4</td>
+                                <td class="p-3 text-white font-sans font-medium">Panel Dinding Samping (Kiri & Kanan)</td>
+                                <td class="p-3">32 × 20 cm</td>
+                                <td class="p-3">2</td>
+                                <td class="p-3 font-sans text-slate-400">Ventilasi sirip & lubang lewat kabel probe</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-cyan-400 font-bold">5 & 6</td>
+                                <td class="p-3 text-white font-sans font-medium">Panel Dinding (Depan & Belakang)</td>
+                                <td class="p-3">46 × 20 cm</td>
+                                <td class="p-3">2</td>
+                                <td class="p-3 font-sans text-slate-400">Tab pasak interlocking 2.0 cm proyeksi 0.6 cm</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-cyan-400 font-bold">7</td>
+                                <td class="p-3 text-white font-sans font-medium">Sekat Kompartemen Vertikal</td>
+                                <td class="p-3">32 × 20 cm</td>
+                                <td class="p-3">1</td>
+                                <td class="p-3 font-sans text-slate-400">Pemisah tangki air (15×9 cm) dan boks kontrol (16×12 cm)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: KAMERA CV & KONTROL AKTUATOR       -->
+        <!-- ========================================== -->
+        <section id="view-camera" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Video Stream Live -->
+                <div class="lg:col-span-2 glass-panel p-6 rounded-2xl space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-video text-emerald-400"></i> Live MJPEG Stream Palang Atas PVC
+                        </h3>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> ONLINE
+                        </span>
+                    </div>
+
+                    <div class="relative rounded-xl overflow-hidden aspect-video bg-dark-900 border border-white/5 flex items-center justify-center">
+                        <img src="/api/camera/stream" class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <!-- Aktuator Greenhouse Mini -->
+                <div class="glass-panel p-6 rounded-2xl space-y-4">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-cyan-400"></i> Kontrol Aktuator Greenhouse
+                    </h3>
+
+                    <div class="space-y-3" id="actuatorList">
+                        <div class="p-3 rounded-xl bg-dark-900 border border-white/5 flex items-center justify-between">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Pompa Irigasi Tetes</h4>
+                                <p class="text-[10px] text-slate-400 font-mono">12V Submersible Reservoir</p>
+                            </div>
+                            <button onclick="toggleActuator('pump_irrigation')" id="btn-pump_irrigation" class="px-3 py-1 rounded-lg text-xs font-mono font-bold bg-dark-800 text-slate-400">OFF</button>
+                        </div>
+                        <div class="p-3 rounded-xl bg-dark-900 border border-white/5 flex items-center justify-between">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">LED Grow Light</h4>
+                                <p class="text-[10px] text-slate-400 font-mono">Full Spectrum 50W Palang Atas</p>
+                            </div>
+                            <button onclick="toggleActuator('growlight_spectrum')" id="btn-growlight_spectrum" class="px-3 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400">ON</button>
+                        </div>
+                        <div class="p-3 rounded-xl bg-dark-900 border border-white/5 flex items-center justify-between">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Exhaust Fan Ventilasi</h4>
+                                <p class="text-[10px] text-slate-400 font-mono">Sirkulasi Dinding Samping</p>
+                            </div>
+                            <button onclick="toggleActuator('fan_exhaust')" id="btn-fan_exhaust" class="px-3 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400">ON</button>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-white/5 space-y-2">
+                        <span class="text-[10px] font-mono text-slate-400 uppercase">Telemetri Mikroklimat Terkini</span>
+                        <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+                            <div class="p-2.5 bg-dark-900 rounded-lg border border-white/5"><span class="text-slate-400 block text-[10px]">SUHU:</span><b id="valTemp" class="text-white text-sm">-- °C</b></div>
+                            <div class="p-2.5 bg-dark-900 rounded-lg border border-white/5"><span class="text-slate-400 block text-[10px]">KELEMBABAN:</span><b id="valHum" class="text-emerald-400 text-sm">-- %</b></div>
+                            <div class="p-2.5 bg-dark-900 rounded-lg border border-white/5"><span class="text-slate-400 block text-[10px]">SOLAR PV:</span><b id="valSolar" class="text-amber-400 text-sm">-- V</b></div>
+                            <div class="p-2.5 bg-dark-900 rounded-lg border border-white/5"><span class="text-slate-400 block text-[10px]">RESERVOIR:</span><b id="valWater" class="text-cyan-400 text-sm">-- %</b></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 4: TRAINING DATASET LADA SEHAT & SAKIT-->
+        <!-- ========================================== -->
+        <section id="view-training" class="hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border-l-4 border-purple-500 space-y-2">
+                <span class="text-[10px] font-mono tracking-widest text-purple-400 uppercase bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">Modul Transfer Learning YOLOv8</span>
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-purple-400"></i>
+                    Pelatihan Dataset: Membedakan Lada Sehat vs Tidak Sehat
+                </h2>
+                <p class="text-xs text-slate-300 leading-relaxed max-w-4xl">
+                    Kumpulkan sampel foto kanopi tanaman lada langsung dari kamera perangkat atau unggahan berkas, beri label <b>Lada Sehat</b> atau <b>Lada Tidak Sehat (Bercak/Nekrosis)</b>, lalu jalankan pelatihan transfer learning YOLOv8 nano secara otomatis di server.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Tambah Sampel Baru -->
+                <div class="glass-panel p-6 rounded-2xl space-y-4">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-folder-plus text-purple-400"></i> Tambah Sampel Citra Lada
+                    </h3>
+
+                    <div class="space-y-3">
+                        <label class="block text-xs font-mono text-slate-300">1. Pilih Label / Kelas Tanaman:</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center gap-2 p-3 rounded-xl bg-dark-900 border border-emerald-500/30 cursor-pointer hover:bg-dark-800 transition">
+                                <input type="radio" name="trainLabel" value="lada_sehat" checked class="accent-emerald-500">
+                                <span class="text-xs font-bold text-emerald-400"><i class="fa-solid fa-circle-check"></i> Lada Sehat</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-3 rounded-xl bg-dark-900 border border-rose-500/30 cursor-pointer hover:bg-dark-800 transition">
+                                <input type="radio" name="trainLabel" value="lada_tidak_sehat" class="accent-rose-500">
+                                <span class="text-xs font-bold text-rose-400"><i class="fa-solid fa-triangle-exclamation"></i> Lada Tidak Sehat</span>
+                            </label>
+                        </div>
+
+                        <label class="block text-xs font-mono text-slate-300 pt-2">2. Pilih Berkas Foto Sampel:</label>
+                        <input type="file" id="sampleFileInput" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer bg-dark-900 p-2 rounded-xl border border-white/5">
+
+                        <button onclick="submitSample()" class="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold font-mono tracking-wider uppercase transition flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20">
+                            <i class="fa-solid fa-plus"></i> Simpan ke Dataset Training
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Status Dataset & Trigger Training -->
+                <div class="glass-panel p-6 rounded-2xl space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-server text-cyan-400"></i> Repositori Dataset & Pelatihan Model
+                        </h3>
+                        <span id="trainingStatusBadge" class="text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-dark-800 text-slate-400">IDLE</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 text-xs font-mono">
+                        <div class="p-3 bg-dark-900 rounded-xl border border-white/5 space-y-1">
+                            <span class="text-slate-400 block text-[10px]">SAMPEL LADA SEHAT:</span>
+                            <b id="cntHealthy" class="text-emerald-400 text-base">0</b>
+                        </div>
+                        <div class="p-3 bg-dark-900 rounded-xl border border-white/5 space-y-1">
+                            <span class="text-slate-400 block text-[10px]">SAMPEL TIDAK SEHAT:</span>
+                            <b id="cntDiseased" class="text-rose-400 text-base">0</b>
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-dark-900/80 border border-white/5 space-y-2">
+                        <div class="flex items-center justify-between text-xs font-mono">
+                            <span class="text-slate-400">Progress Training:</span>
+                            <span id="trainEpochText" class="text-purple-400 font-bold">0%</span>
+                        </div>
+                        <div class="w-full bg-dark-800 rounded-full h-2 overflow-hidden">
+                            <div id="trainProgressBar" class="bg-gradient-to-r from-purple-600 to-emerald-400 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <p id="trainLogMessage" class="text-[11px] font-mono text-slate-400 pt-1">Siap melatih dataset lada sehat vs tidak sehat.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="w-24">
+                            <span class="text-[10px] font-mono text-slate-400 block">Epochs:</span>
+                            <input type="number" id="trainEpochsInput" value="15" min="5" max="50" class="w-full bg-dark-900 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white font-mono">
+                        </div>
+                        <button onclick="startTrainingProcess()" id="btnStartTrain" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold font-mono tracking-wider uppercase transition shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play"></i> Mulai Pelatihan YOLOv8 Sekarang
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- ============================================== -->
+            <!-- GALERI VISUAL DATASET (INSPEKSI SAMPEL GAMBAR) -->
+            <!-- ============================================== -->
+            <div class="glass-panel p-6 rounded-2xl space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-images text-cyan-400"></i>
+                            Galeri Inspeksi Citra Dataset (1.270+ Sampel)
+                        </h3>
+                        <p class="text-[11px] text-slate-400 font-mono">Pratinjau visual citra daun lada yang tersimpan di repositori pelatihan.</p>
+                    </div>
+
+                    <!-- Filter Kategori & Split -->
+                    <div class="flex items-center gap-2 text-xs font-mono">
+                        <select id="galleryCategoryFilter" onchange="loadGallery(1)" class="bg-dark-900 border border-white/10 rounded-xl px-3 py-1.5 text-slate-200">
+                            <option value="all">Semua Kategori</option>
+                            <option value="lada_sehat">Lada Sehat (507)</option>
+                            <option value="lada_tidak_sehat">Lada Tidak Sehat (506)</option>
+                        </select>
+                        <select id="gallerySplitFilter" onchange="loadGallery(1)" class="bg-dark-900 border border-white/10 rounded-xl px-3 py-1.5 text-slate-200">
+                            <option value="train">Train Set (1.013)</option>
+                            <option value="val">Validation Set (257)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Grid Galeri Gambar -->
+                <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 min-h-[220px]">
+                    <div class="col-span-full py-12 text-center text-slate-500 text-xs font-mono">
+                        <i class="fa-solid fa-spinner animate-spin text-2xl mb-2 text-purple-400 block"></i>
+                        Memuat citra dataset...
+                    </div>
+                </div>
+
+                <!-- Pagination Bar -->
+                <div class="flex items-center justify-between pt-3 border-t border-white/5 text-xs font-mono">
+                    <span id="galleryInfoText" class="text-slate-400">Menampilkan 0 - 0 dari 0 citra</span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="prevGalleryPage()" id="btnPrevGallery" class="px-3 py-1 rounded-lg bg-dark-900 border border-white/10 text-slate-300 hover:text-white disabled:opacity-40">
+                            <i class="fa-solid fa-chevron-left"></i> Prev
+                        </button>
+                        <span id="galleryPageIndicator" class="text-white font-bold px-2">Hal 1 / 1</span>
+                        <button onclick="nextGalleryPage()" id="btnNextGallery" class="px-3 py-1 rounded-lg bg-dark-900 border border-white/10 text-slate-300 hover:text-white disabled:opacity-40">
+                            Next <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Zoom Gambar Dataset -->
+            <div id="imageModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeImageModal()">
+                <div class="relative max-w-2xl w-full bg-dark-900 rounded-2xl overflow-hidden border border-white/10 p-4 space-y-3" onclick="event.stopPropagation()">
+                    <div class="flex items-center justify-between">
+                        <span id="modalImageLabel" class="text-xs font-mono font-bold px-2 py-0.5 rounded">--</span>
+                        <button onclick="closeImageModal()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="aspect-square w-full rounded-xl overflow-hidden bg-dark-950 flex items-center justify-center">
+                        <img id="modalImageSrc" src="" class="w-full h-full object-contain">
+                    </div>
+                    <p id="modalImageFilename" class="text-[10px] font-mono text-slate-400 truncate"></p>
+                </div>
+            </div>
+
+
+        </section>
+
+    </main>
+
+    <footer class="border-t border-white/5 py-4 text-center text-xs text-slate-500 font-mono">
+        SmartPepper Farm 4.0 Mini-Greenhouse System • Institut Teknologi Batam (ITEBA)
+    </footer>
+
+    <script>
+        function switchTab(t) {
+            ['yolo', 'blueprint', 'camera', 'training'].forEach(tab => {
+                document.getElementById('view-' + tab).classList.toggle('hidden', tab !== t);
+                const btn = document.getElementById('tab-' + tab);
+                btn.classList.toggle('active', tab === t);
+                btn.classList.toggle('text-slate-400', tab !== t);
+            });
+        }
+
+        let selectedFile = null;
+        const dropzone = document.getElementById('dropzone');
+        const imgInput = document.getElementById('imageInput');
+
+        dropzone.addEventListener('click', () => imgInput.click());
+        function handleFile(e) {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    document.getElementById('imgPreview').src = ev.target.result;
+                    document.getElementById('dropzone').classList.add('hidden');
+                    document.getElementById('previewArea').classList.remove('hidden');
+                };
+                r.readAsDataURL(selectedFile);
+            }
+        }
+
+        function resetInput() {
+            selectedFile = null;
+            document.getElementById('imageInput').value = '';
+            document.getElementById('dropzone').classList.remove('hidden');
+            document.getElementById('previewArea').classList.add('hidden');
+            document.getElementById('resultContent').classList.add('hidden');
+            document.getElementById('resultEmpty').classList.remove('hidden');
+            document.getElementById('badgeDetectionCount').innerText = "0 DETEKSI";
+        }
+
+        async function runYoloInference() {
+            if (!selectedFile) return;
+            const btn = document.getElementById('btnRunYolo');
+            const loading = document.getElementById('loadingYolo');
+            btn.disabled = true;
+            loading.classList.remove('hidden');
+
+            const fd = new FormData();
+            fd.append('image', selectedFile);
+            fd.append('conf', document.getElementById('confSlider').value);
+            fd.append('target', document.getElementById('targetOrgan').value);
+
+            try {
+                const res = await fetch('/api/detect/image', { method: 'POST', body: fd });
+                if (!res.ok) {
+                    const errText = await res.text();
+                    throw new Error(`Server Error (${res.status}): ${errText.substring(0, 120)}`);
+                }
+                const data = await res.json();
+                btn.disabled = false;
+                loading.classList.add('hidden');
+
+                if (data.status === 'SUCCESS') {
+                    document.getElementById('resultEmpty').classList.add('hidden');
+                    document.getElementById('resultContent').classList.remove('hidden');
+                    document.getElementById('annotatedOutput').src = data.annotated_image;
+                    document.getElementById('badgeDetectionCount').innerText = `${data.count} DETEKSI`;
+
+                    const detBox = document.getElementById('detectionDetails');
+                    detBox.innerHTML = '';
+
+                    if (data.detections.length === 0) {
+                        detBox.innerHTML = `<div class="p-3 rounded-xl bg-dark-900 text-slate-400 text-xs">Foto tidak menunjukkan tanda-tanda penyakit yang jelas, atau gambar kurang fokus.</div>`;
+                    } else {
+                        data.detections.forEach(d => {
+                            const isNonPlant = d.organ === 'BUKAN_TANAMAN';
+                            const isHealthy = d.condition === 'SEHAT';
+                            const borderCol = isNonPlant ? 'border-amber-500/30' : (isHealthy ? 'border-emerald-500/30' : 'border-rose-500/30');
+                            const badgeCol = isNonPlant ? 'bg-amber-500/20 text-amber-400' : (isHealthy ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400');
+                            const organLabel = d.organ ? `<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold mr-1.5">${d.organ}</span>` : '';
+
+                            detBox.innerHTML += `
+                                <div class="p-4 rounded-xl bg-dark-900 border ${borderCol} space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5">
+                                            ${organLabel}
+                                            <h4 class="font-bold text-white text-xs">${d.info.name}</h4>
+                                        </div>
+                                        <span class="text-[10px] font-mono px-2 py-0.5 rounded font-bold ${badgeCol}">${d.condition} • ${d.confidence}%</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-300">${d.info.description}</p>
+                                    
+                                    <!-- Rekomendasi Standar PUSTAKA Kementan RI -->
+                                    <div class="pt-2 border-t border-white/10 space-y-2 text-[11px]">
+                                        <div class="p-2.5 rounded-lg bg-dark-950 border border-emerald-500/20">
+                                            <p class="font-bold text-emerald-400 flex items-center gap-1.5 text-[11px]">
+                                                <i class="fa-solid fa-leaf"></i> 🌿 Cara Alami / Ramah Lingkungan:
+                                            </p>
+                                            <p class="text-slate-300 text-[10px] mt-0.5 leading-relaxed">${d.info.pengendalian_hayati || '-'}</p>
+                                        </div>
+                                        <div class="p-2.5 rounded-lg bg-dark-950 border border-cyan-500/20">
+                                            <p class="font-bold text-cyan-400 flex items-center gap-1.5 text-[11px]">
+                                                <i class="fa-solid fa-flask-vial"></i> 🧪 Obat / Racikan Sederhana (Bubur Bordo):
+                                            </p>
+                                            <p class="text-slate-300 text-[10px] mt-0.5 leading-relaxed">${d.info.pengendalian_kimiawi || '-'}</p>
+                                        </div>
+                                        <div class="p-2.5 rounded-lg bg-dark-950 border border-amber-500/20">
+                                            <p class="font-bold text-amber-400 flex items-center gap-1.5 text-[11px]">
+                                                <i class="fa-solid fa-seedling"></i> 🚜 Cara Merawat Kebun & Pohon:
+                                            </p>
+                                            <p class="text-slate-300 text-[10px] mt-0.5 leading-relaxed">${d.info.teknik_budidaya || '-'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+            } catch (e) {
+                btn.disabled = false;
+                loading.classList.add('hidden');
+                alert("Gagal inferensi: " + e);
+            }
+        }
+
+                // Realtime Web Camera & YOLO Stream Logic
+        let webcamStream = null;
+        let isRealtimeActive = false;
+        let realtimeTimer = null;
+        const webcamVideo = document.getElementById('webcamVideo');
+        const captureCanvas = document.getElementById('captureCanvas');
+
+        async function setMode(mode) {
+            if (mode === 'webcam') {
+                document.getElementById('dropzone').classList.add('hidden');
+                document.getElementById('previewArea').classList.add('hidden');
+                document.getElementById('webcamArea').classList.remove('hidden');
+                document.getElementById('btnModeWebcam').className = "flex-1 py-1.5 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                document.getElementById('btnModeFile').className = "flex-1 py-1.5 rounded-lg text-xs font-mono font-bold bg-dark-900 text-slate-400 border border-white/5 hover:text-white";
+                startWebcam();
+            } else {
+                stopWebcam();
+                document.getElementById('webcamArea').classList.add('hidden');
+                document.getElementById('dropzone').classList.remove('hidden');
+                document.getElementById('previewArea').classList.add('hidden');
+                document.getElementById('btnModeFile').className = "flex-1 py-1.5 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                document.getElementById('btnModeWebcam').className = "flex-1 py-1.5 rounded-lg text-xs font-mono font-bold bg-dark-900 text-slate-400 border border-white/5 hover:text-white";
+            }
+        }
+
+        async function startWebcam() {
+            try {
+                webcamStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "environment" }
+                });
+                webcamVideo.srcObject = webcamStream;
+            } catch (err) {
+                alert("Tidak dapat mengakses kamera perangkat: " + err.message + "\nPastikan izin kamera diizinkan pada browser.");
+            }
+        }
+
+        function stopWebcam() {
+            if (isRealtimeActive) toggleRealtimeDetection();
+            if (webcamStream) {
+                webcamStream.getTracks().forEach(track => track.stop());
+                webcamStream = null;
+            }
+        }
+
+        let lastFrameTime = performance.now();
+        const overlayCanvas = document.getElementById('overlayCanvas');
+
+        async function captureAndDetect() {
+            if (!webcamVideo.videoWidth) return;
+            const t0 = performance.now();
+            captureCanvas.width = 480; // Resize untuk kecepatan inferensi optimal
+            captureCanvas.height = 360;
+            const ctx = captureCanvas.getContext('2d');
+            ctx.drawImage(webcamVideo, 0, 0, captureCanvas.width, captureCanvas.height);
+
+            captureCanvas.toBlob(async (blob) => {
+                const fd = new FormData();
+                fd.append('image', blob, 'webcam_frame.jpg');
+                fd.append('conf', document.getElementById('confSlider').value);
+                fd.append('target', document.getElementById('targetOrgan').value);
+
+                try {
+                    const res = await fetch('/api/detect/image', { method: 'POST', body: fd });
+                    const data = await res.json();
+                    const lat = Math.round(performance.now() - t0);
+                    document.getElementById('realtimeLatency').innerText = lat;
+                    
+                    const fps = Math.round(1000 / (performance.now() - lastFrameTime));
+                    lastFrameTime = performance.now();
+                    document.getElementById('realtimeFps').innerText = isNaN(fps) ? '--' : Math.min(30, fps);
+
+                    // Gambar Bounding Box AR di atas Canvas Overlay
+                    overlayCanvas.width = webcamVideo.clientWidth;
+                    overlayCanvas.height = webcamVideo.clientHeight;
+                    const octx = overlayCanvas.getContext('2d');
+                    octx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+                    const hudBadge = document.getElementById('realtimeHudBadge');
+
+                    if (data.status === 'SUCCESS') {
+                        document.getElementById('badgeDetectionCount').innerText = `${data.count} DETEKSI`;
+
+                        if (data.count === 0 || data.overall_condition === 'TIDAK_ADA_SAMPEL') {
+                            // JANGAN TAMPILKAN SEOLAH ADA DETEKSI
+                            hudBadge.className = "px-2.5 py-0.5 rounded bg-dark-800 text-slate-400 border border-white/5 font-mono text-[10px]";
+                            hudBadge.innerText = "MENCARI SAMPEL DAUN / BUAH...";
+                            document.getElementById('resultEmpty').classList.remove('hidden');
+                            document.getElementById('resultContent').classList.add('hidden');
+                            return;
+                        }
+
+                        // HANYA JIKA ADA SAMPEL YANG BENAR-BENAR TERDETEKSI
+                        document.getElementById('resultEmpty').classList.add('hidden');
+                        document.getElementById('resultContent').classList.remove('hidden');
+                        document.getElementById('annotatedOutput').src = data.annotated_image;
+
+                        if (data.overall_condition === 'BUKAN_DAUN') {
+                            hudBadge.className = "px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold font-mono text-[10px]";
+                            hudBadge.innerText = "BUKAN DAUN / TANAMAN";
+                        } else if (data.overall_condition === 'SEHAT') {
+                            hudBadge.className = "px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold font-mono text-[10px]";
+                            hudBadge.innerText = "LADA SEHAT";
+                        } else {
+                            hudBadge.className = "px-2.5 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold font-mono text-[10px]";
+                            hudBadge.innerText = "LADA TIDAK SEHAT";
+                        }
+
+                        const detBox = document.getElementById('detectionDetails');
+                        detBox.innerHTML = '';
+
+                        data.detections.forEach(d => {
+                            const isNonPlant = d.organ === 'BUKAN_TANAMAN';
+                            const isHealthy = d.condition === 'SEHAT';
+                            const colorHex = isNonPlant ? '#eab308' : (isHealthy ? '#10b981' : '#f43f5e');
+                            const badgeBg = isNonPlant ? 'bg-amber-500/20 text-amber-400' : (isHealthy ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400');
+                            const organLabel = d.organ ? `<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold mr-1.5">${d.organ}</span>` : '';
+
+                            // Render AR box di video kamera
+                            if (d.norm_bbox) {
+                                const bx = d.norm_bbox[0] * overlayCanvas.width;
+                                const by = d.norm_bbox[1] * overlayCanvas.height;
+                                const bw = (d.norm_bbox[2] - d.norm_bbox[0]) * overlayCanvas.width;
+                                const bh = (d.norm_bbox[3] - d.norm_bbox[1]) * overlayCanvas.height;
+
+                                octx.strokeStyle = colorHex;
+                                octx.lineWidth = 3;
+                                octx.strokeRect(bx, by, bw, bh);
+
+                                octx.fillStyle = colorHex;
+                                octx.fillRect(bx, Math.max(0, by - 24), Math.min(220, bw), 24);
+
+                                octx.fillStyle = "#ffffff";
+                                octx.font = "bold 12px monospace";
+                                const organTag = d.organ ? `[${d.organ}] ` : '';
+                                octx.fillText(`${organTag}${d.condition} ${d.confidence}%`, bx + 6, Math.max(16, by - 7));
+                            }
+
+                            // Render list info detail SOP Kementan
+                            detBox.innerHTML += `
+                                <div class="p-3.5 rounded-xl bg-dark-900 border ${isHealthy ? 'border-emerald-500/30' : 'border-rose-500/30'} space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5">${organLabel}<h4 class="font-bold text-white text-xs">${d.info.name}</h4></div>
+                                        <span class="text-[10px] font-mono px-2 py-0.5 rounded font-bold ${badgeBg}">${d.condition} • ${d.confidence}%</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-300">${d.info.description}</p>
+                                    <div class="pt-2 border-t border-white/10 space-y-1.5 text-[10px]">
+                                        <p><b class="text-emerald-400">🌿 Alami:</b> <span class="text-slate-300">${d.info.pengendalian_hayati || '-'}</span></p>
+                                        <p><b class="text-cyan-400">🧪 Obat/Kapur:</b> <span class="text-slate-300">${d.info.pengendalian_kimiawi || '-'}</span></p>
+                                        <p><b class="text-amber-400">🚜 Rawat Kebun:</b> <span class="text-slate-300">${d.info.teknik_budidaya || '-'}</span></p>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                } catch(e) {}
+            }, 'image/jpeg', 0.80);
+        }
+
+        function toggleRealtimeDetection() {
+            isRealtimeActive = !isRealtimeActive;
+            const btn = document.getElementById('btnRealtimeLoop');
+            const lbl = document.getElementById('realtimeLabel');
+            if (isRealtimeActive) {
+                btn.className = "py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold font-mono tracking-wider uppercase transition flex items-center justify-center gap-2";
+                lbl.innerText = "Hentikan Deteksi Auto";
+                realtimeTimer = setInterval(() => {
+                    captureAndDetect();
+                }, 800); // 800ms loop continuous YOLOv8 inference
+            } else {
+                clearInterval(realtimeTimer);
+                realtimeTimer = null;
+                btn.className = "py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold font-mono tracking-wider uppercase transition flex items-center justify-center gap-2";
+                lbl.innerText = "Mulai Deteksi Auto";
+            }
+        }
+
+        // Aktuator Toggle
+        let actState = { pump_irrigation: 0, growlight_spectrum: 1, fan_exhaust: 1 };
+        async function toggleActuator(id) {
+            actState[id] = actState[id] === 1 ? 0 : 1;
+            const btn = document.getElementById('btn-' + id);
+            if (actState[id] === 1) {
+                btn.className = "px-3 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400";
+                btn.innerText = "ON";
+            } else {
+                btn.className = "px-3 py-1 rounded-lg text-xs font-mono font-bold bg-dark-800 text-slate-400";
+                btn.innerText = "OFF";
+            }
+            await fetch('/api/actuators/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id, state: actState[id] })
+            });
+        }
+
+        
+        // Training Dataset JS Logic
+        async function fetchDatasetStats() {
+            try {
+                const res = await fetch('/api/dataset/stats');
+                const d = await res.json();
+                document.getElementById('cntHealthy').innerText = d.train_healthy;
+                document.getElementById('cntDiseased').innerText = d.train_diseased;
+
+                if (d.training_state) {
+                    const st = d.training_state;
+                    const badge = document.getElementById('trainingStatusBadge');
+                    badge.innerText = st.status;
+                    badge.className = st.status === 'TRAINING' 
+                        ? 'text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30 animate-pulse'
+                        : (st.status === 'COMPLETED' ? 'text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-dark-800 text-slate-400');
+
+                    document.getElementById('trainProgressBar').style.width = st.progress + '%';
+                    document.getElementById('trainEpochText').innerText = st.progress + '%';
+                    document.getElementById('trainLogMessage').innerText = st.message;
+
+                    document.getElementById('btnStartTrain').disabled = (st.status === 'TRAINING');
+                }
+            } catch(e) {}
+        }
+
+        async function submitSample() {
+            const fileInput = document.getElementById('sampleFileInput');
+            if (fileInput.files.length === 0) {
+                alert("Pilih file foto daun terlebih dahulu.");
+                return;
+            }
+            const label = document.querySelector('input[name="trainLabel"]:checked').value;
+            const fd = new FormData();
+            fd.append('image', fileInput.files[0]);
+            fd.append('label', label);
+            fd.append('split', 'train');
+
+            try {
+                const res = await fetch('/api/dataset/add-sample', { method: 'POST', body: fd });
+                const d = await res.json();
+                if (d.status === 'SUCCESS') {
+                    alert(d.message);
+                    fileInput.value = '';
+                    fetchDatasetStats();
+                } else {
+                    alert(d.error || 'Gagal menyimpan sampel.');
+                }
+            } catch(e) {
+                alert("Error: " + e);
+            }
+        }
+
+        async function startTrainingProcess() {
+            const ep = document.getElementById('trainEpochsInput').value;
+            try {
+                const res = await fetch('/api/training/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ epochs: parseInt(ep) })
+                });
+                const d = await res.json();
+                if (d.status === 'SUCCESS') {
+                    alert(d.message);
+                    fetchDatasetStats();
+                } else {
+                    alert(d.error || 'Gagal memulai pelatihan.');
+                }
+            } catch(e) {
+                alert("Error: " + e);
+            }
+        }
+
+        
+        // Dataset Visual Gallery Logic
+        let currentGalleryPage = 1;
+        let totalGalleryPages = 1;
+
+        async function loadGallery(page = 1) {
+            currentGalleryPage = page;
+            const cat = document.getElementById('galleryCategoryFilter').value;
+            const split = document.getElementById('gallerySplitFilter').value;
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '<div class="col-span-full py-8 text-center text-slate-500 text-xs font-mono"><i class="fa-solid fa-spinner animate-spin text-xl text-purple-400 block mb-2"></i>Memuat sampel citra...</div>';
+
+            try {
+                const res = await fetch(`/api/dataset/gallery?split=${split}&category=${cat}&page=${page}&per_page=18`);
+                const d = await res.json();
+                totalGalleryPages = d.total_pages;
+
+                document.getElementById('galleryPageIndicator').innerText = `Hal ${d.page} / ${d.total_pages}`;
+                document.getElementById('galleryInfoText').innerText = `Total: ${d.total} citra (${split.toUpperCase()})`;
+
+                document.getElementById('btnPrevGallery').disabled = (d.page <= 1);
+                document.getElementById('btnNextGallery').disabled = (d.page >= d.total_pages);
+
+                grid.innerHTML = '';
+                if (d.items.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full py-8 text-center text-slate-500 text-xs font-mono">Tidak ada citra dalam kategori ini.</div>';
+                    return;
+                }
+
+                d.items.forEach(item => {
+                    const isHealthy = item.category === 'lada_sehat';
+                    const badgeClass = isHealthy ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border-rose-500/30';
+                    const borderClass = isHealthy ? 'border-emerald-500/20 hover:border-emerald-500/60' : 'border-rose-500/20 hover:border-rose-500/60';
+
+                    const card = document.createElement('div');
+                    card.className = `group relative rounded-xl overflow-hidden bg-dark-900 border ${borderClass} transition cursor-pointer shadow-sm`;
+                    card.onclick = () => openImageModal(item.url, item.label_title, isHealthy, item.filename);
+
+                    card.innerHTML = `
+                        <div class="aspect-square w-full bg-dark-950 overflow-hidden">
+                            <img src="${item.url}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        </div>
+                        <div class="p-2 space-y-1">
+                            <span class="text-[9px] font-mono px-1.5 py-0.5 rounded font-bold border ${badgeClass} block text-center truncate">
+                                ${item.label_title}
+                            </span>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+            } catch(e) {
+                grid.innerHTML = `<div class="col-span-full py-8 text-center text-rose-400 text-xs font-mono">Gagal memuat galeri: ${e}</div>`;
+            }
+        }
+
+        function prevGalleryPage() {
+            if (currentGalleryPage > 1) loadGallery(currentGalleryPage - 1);
+        }
+
+        function nextGalleryPage() {
+            if (currentGalleryPage < totalGalleryPages) loadGallery(currentGalleryPage + 1);
+        }
+
+        function openImageModal(src, label, isHealthy, fname) {
+            const modal = document.getElementById('imageModal');
+            document.getElementById('modalImageSrc').src = src;
+            const badge = document.getElementById('modalImageLabel');
+            badge.innerText = label;
+            badge.className = isHealthy 
+                ? "text-xs font-mono font-bold px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                : "text-xs font-mono font-bold px-2.5 py-1 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30";
+            document.getElementById('modalImageFilename').innerText = "File: " + fname;
+            modal.classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+        }
+
+        // Auto load gallery saat pertama kali
+        setTimeout(() => loadGallery(1), 1000);
+
+        setInterval(fetchDatasetStats, 3000);
+        fetchDatasetStats();
+
+        // Polling Telemetri
+        async function pollTelemetry() {
+            try {
+                const res = await fetch('/api/telemetry');
+                const d = await res.json();
+                document.getElementById('valTemp').innerText = d.temperature + ' °C';
+                document.getElementById('valHum').innerText = d.humidity + ' %';
+                document.getElementById('valSolar').innerText = d.solar_voltage + ' V (' + d.solar_current + 'A)';
+                document.getElementById('valWater').innerText = d.water_level + ' %';
+            } catch(e) {}
+        }
+        setInterval(pollTelemetry, 3000);
+        pollTelemetry();
+    </script>
+</body>
+</html>

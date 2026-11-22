@@ -1,0 +1,19 @@
+# SmartPepper YOLOv8 Dataset v2 - Enhanced Leaf & Fruit Separation
+path: /opt/smartpepper-yolo/dataset_v2_enhanced
+train: train/images
+val: val/images
+
+# 4 Kelas terpisah dengan deskripsi spesifik
+nc: 4
+names:
+  0: leaf_healthy
+  1: leaf_diseased
+  2: fruit_healthy
+  3: fruit_diseased
+
+description: |
+  Dataset untuk deteksi kesehatan tanaman lada dengan klasifikasi terpisah:
+  - leaf_healthy: Daun lada sehat (hijau cerah, tekstur halus)
+  - leaf_diseased: Daun lada sakit (spot, nekrosis, layu, jamur)
+  - fruit_healthy: Buah lada sehat (merah/hijau segar, permukaan halus)
+  - fruit_diseased: Buah lada tidak sehat (busuk, keriput, discoloration)
